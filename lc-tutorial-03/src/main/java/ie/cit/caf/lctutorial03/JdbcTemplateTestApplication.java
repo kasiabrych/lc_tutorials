@@ -35,6 +35,8 @@ public class JdbcTemplateTestApplication implements CommandLineRunner{
 		query04(); 
 		query05(); 
 		query06(); 
+		query07(); 
+		query08(); 
 	}
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -158,5 +160,68 @@ public class JdbcTemplateTestApplication implements CommandLineRunner{
 		System.out.println(artist.toString());
 	}
 
+	public void query07() {
+		// Movement-to-Artist version
+		// Specific movement and the movement's artists (many-to-many)
+		// This is an inefficient version with 2 separate queries
+		
+
+		System.out.println("\nQuery 7 (Print movements and artists - 2 queries)\n------------------");
+
+		String sql = "SELECT * FROM movements WHERE id = ?";
+		Movement movement = jdbcTemplate.queryForObject(sql, new Object[] { 4 }, new MovementRowMapper());
+
+		sql = "SELECT a.* FROM artists a, artist_movements am WHERE a.id = am.artist_id AND am.movement_id = ?";
+		List<Artist> artists = jdbcTemplate.query(sql, new Object[] { 4 }, new ArtistRowMapper());
+			
+		movement.setArtists(artists);
+		
+		System.out.println(movement.toString());
+	}
+	
+	public void query08() {
+		//Movement-to-Artist version
+		// Specific movement and the movement's artists (many-to-many)
+		// More efficient version with a single join query and
+		// a ResultSetExtractor.... but it can get messy the more
+		// complicated the join queries! The solution? ORM.
+
+		System.out.println("\nQuery 8 (Print movement and artists - 1 join query)\n------------------");
+
+		String sql = "SELECT m.id as movementid, m.name, a.id as artistid, a.fullName, a.gender " +
+				"FROM artists a, movements m, artist_movements am " +
+				"WHERE a.id = am.artist_id AND m.id = am.movement_id AND am.movement_id = ?";
+		Movement movement = jdbcTemplate.query(sql, new Object[] { 4 },
+				new ResultSetExtractor<Movement>() {
+
+					@Override
+					public Movement extractData(ResultSet rs)
+							throws SQLException, DataAccessException {
+						;
+						Movement movement = null;
+						List<Artist> artists = new ArrayList<>();
+						
+						while (rs.next()) {
+							if (movement == null) {
+								movement = new Movement();
+								movement.setId(rs.getInt("movementid"));
+								movement.setName(rs.getString("name"));
+								
+							}
+							Artist artist = new Artist();
+							artist.setId(rs.getInt("artistid"));
+							artist.setName(rs.getString("fullName"));
+							artist.setGender(rs.getString("gender"));
+							artists.add(artist);
+						}
+						
+						movement.setArtists(artists);
+						return movement;
+					}
+				}
+		);
+		
+		System.out.println(movement.toString());
+	}
 
 }

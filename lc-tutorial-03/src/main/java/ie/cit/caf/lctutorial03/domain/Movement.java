@@ -1,15 +1,31 @@
 package ie.cit.caf.lctutorial03.domain;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Movement {
 
 	private int id;
 	
 	private String name;
+	
+	private List<Artist> artists;
+	
+	public Movement() {
+		artists = Collections.<Artist>emptyList();
+	}
+	
 
 	@Override
 	public String toString() {
-		return "Movement [id=" + id + ", name=" + name + "]";
+		String out = "Movement [id=" + id + ", name=" + getName() + ", artists=[";
+		for (Artist a : artists) {
+			out += a.toString() + ",";
+		}
+		out += "]]";
+		return out;
 	}
+
 	
 	public int getId() {
 		return id;
@@ -25,5 +41,15 @@ public class Movement {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+
+	public List<Artist> getArtists() {
+		return artists;
+	}
+
+
+	public void setArtists(List<Artist> artists) {
+		this.artists = artists;
 	}
 }
