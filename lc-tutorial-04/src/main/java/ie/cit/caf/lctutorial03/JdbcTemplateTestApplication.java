@@ -2,8 +2,10 @@ package ie.cit.caf.lctutorial03;
 
 import ie.cit.caf.lctutorial03.domain.Artist;
 import ie.cit.caf.lctutorial03.domain.Movement;
+import ie.cit.caf.lctutorial03.repository.ArtistRepository;
 import ie.cit.caf.lctutorial03.rowmapper.ArtistRowMapper;
 import ie.cit.caf.lctutorial03.rowmapper.MovementRowMapper;
+import ie.cit.caf.lctutorial03.service.ArtistService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +23,12 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 @SpringBootApplication
 public class JdbcTemplateTestApplication implements CommandLineRunner{
+	
+	@Autowired
+	ArtistRepository artistRepository;
+	
+	@Autowired
+	ArtistService artistService; 
 
     public static void main(String[] args) {
         SpringApplication.run(JdbcTemplateTestApplication.class, args);
@@ -37,9 +45,47 @@ public class JdbcTemplateTestApplication implements CommandLineRunner{
 		query06(); 
 		query07(); 
 		query08(); 
+		
+		repositoryExample(); 
+		serviceExample(); 
 	}
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+	
+	public void repositoryExample(){
+		Artist artist = artistRepository.get(1); 
+		System.out.println(artist.toString()); 
+		
+		artist.setGender(toggleGender(artist.getGender()));
+		artistRepository.save(artist);
+		
+		Artist newArtist = new Artist(); 
+		newArtist.setName("Picasso, Pablo"); 
+		newArtist.setGender("male");
+		artistRepository.save(newArtist);
+		
+		System.out.println("All artists:");
+		List<Artist> artists = artistRepository.findAll(); 
+		for (Artist a : artists) {
+			System.out.println(a.toString());
+		}
+	}
+	
+	private String toggleGender(String gender){
+		if (gender.equals("male")) {
+			return "female"; 
+		}else {
+			return "male"; 
+		}
+	}
+	
+	void serviceExample(){
+		Artist a1 = artistService.get(3); 
+		a1.setGender(toggleGender(a1.getGender()));
+		artistService.save(a1); 
+		
+		System.out.println("\nUpdated via service:\n" + a1.toString());
+	}
 	
 	public void query01() {
 		// Query for a list of maps with key-value pairs
