@@ -37,14 +37,14 @@ public class JdbcTemplateTestApplication implements CommandLineRunner{
 	@Override
 	public void run(String... arg0) throws Exception {
 		// TODO Auto-generated method stub
-		query01();
-		query02(); 
-		query03(); 
-		query04(); 
-		query05(); 
-		query06(); 
-		query07(); 
-		query08(); 
+//		query01();
+//		query02(); 
+//		query03(); 
+//		query04(); 
+//		query05(); 
+//		query06(); 
+//		query07(); 
+//		query08(); 
 		
 		repositoryExample(); 
 		serviceExample(); 
